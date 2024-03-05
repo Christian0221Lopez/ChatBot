@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Image, Pressable, Alert } from 'react-native';
-import { NavigationContext } from '@react-navigation/native';
-import Gif from 'react-native-gif';
-
+import { StyleSheet, Text, View, TextInput, Pressable, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Modificado
+import GifImage from '@lowkey/react-native-gif';
 
 const App = () => {
-  const navigation = React.useContext(NavigationContext);  
+  const navigation = useNavigation(); // Modificado
   const [correo, setCorreo] = useState('');
-  const [pass, setPass] = useState('');
+  const [passw, setPass] = useState('');
+  const [isRegisA, setIsRegisA] = useState(false); // Modificado
+  const [isRegis, setIsRegis] = useState(false); // Modificado
 
   const handleCorreoChange = (text) => {
     setCorreo(text);
@@ -17,82 +18,68 @@ const App = () => {
     setPass(text);
   }
 
+  const MenuEnt = () =>
+  {
+    navigation.navigate("Menu");
+  }
 
-    const MenuEnt = () => 
-    {
-      navigation.navigate("Menu");
-    }
-
-    const Enter = () =>
-    {
-      const self = this; // Almacena el valor de 'this' en una variable 'self'
-    
-      // conexi√≥n con el servidor
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function () 
-      {
-        if (this.readyState == 4 && this.status == 200) 
-        {
-          // Typical action to be performed when the document is ready:
-          console.log(xhttp.responseText);
-          if (xhttp.responseText === "1") 
-          {
-            Alert.alert("El usuario est√° registrado");
-    
-            // Accede al 'isRegis' a trav√©s de 'self' en lugar de 'this'
-            self.setState({ isRegis: true });
-          } 
-          else if (xhttp.responseText === "0") 
-          {
-            Alert.alert("Usuario Administrador Encontrado");
-            self.setState({ isRegisA: true });
-          }
-          else 
-          {
-            Alert.alert("Hubo un error, intenta nuevamente");
-          }
+  const Enter = () => {
+    // conexión con el servidor
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+      if (this.readyState == 4 && this.status == 200) {
+        // Typical action to be performed when the document is ready:
+        console.log(xhttp.responseText);
+        if (xhttp.responseText === "1") {
+          Alert.alert("El usuario está registrado");
+          setIsRegis(true); // Modificado
+          MenuEnt();
+        } else if (xhttp.responseText === "0") {
+          Alert.alert("Usuario Administrador Encontrado");
+          setIsRegisA(true); // Modificado
+        } else {
+          Alert.alert("Hubo un error, intenta nuevamente");
         }
-      };
-      xhttp.open("GET","https://myapp2023ti.000webhostapp.com/datos/Access.php?codigo=" + self.state.codigo + "&password=" + self.state.password, true);
-      xhttp.send();
-    }
+      }
+    };
+    xhttp.open("GET", "https://myapp2023ti.000webhostapp.com/datos/Access.php?correo=" + correo + "&passw=" + passw, true);
+    xhttp.send();
+  }
 
-    return (
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Chat Bot</Text>
-        <View>
-          <Image
-            source={require('./Imagenes/giphy.gif')}
-            style={styles.image}
-          />
-        </View>
-        <TextInput  
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, padding: 10 }}
+  return (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Chat Bot</Text>
+      <View>
+        <GifImage
+          source={require('./Imagenes/giphy.gif')}
+          style={styles.image}
+          resizeMode='cover' // Modificado
+        />
+      </View>
+      <TextInput
+        style={styles.input}
         onChangeText={handleCorreoChange}
         value={correo}
         placeholder="Correo electrónico"
         keyboardType="email-address"
-        />
-      <TextInput  
-        style={{ height: 40, borderColor: 'gray', borderWidth: 1, marginBottom: 10, padding: 10 }}
+      />
+      <TextInput
+        style={styles.input}
         onChangeText={handlePassChange}
-        value={pass}
+        value={passw}
         placeholder="Contraseña"
         secureTextEntry={true}
-
-        />
-        <Pressable onPress={MenuEnt} style={styles.button}>
-          <Text style={styles.buttonText}>Iniciar sesion</Text>
-        </Pressable>
-      </View>
-    );
-  }
-
+      />
+      <Pressable onPress={Enter} style={styles.button}>
+        <Text style={styles.buttonText}>Iniciar sesión</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 const styles = StyleSheet.create({
   sectionContainer: {
     alignItems: 'center',
-    backgroundColor: 'white',
   },
   sectionTitle: {
     fontSize: 50,
